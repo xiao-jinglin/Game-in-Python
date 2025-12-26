@@ -14,6 +14,7 @@ BLUE = (0, 100, 255)
 player_x = 300
 player_y = 310
 player_size = 40
+player_speed = 5
 
 # 跳跃变量
 jump = False
@@ -31,6 +32,18 @@ while running:
             if event.key == pygame.K_SPACE and not jump:
                 jump = True
                 y_speed = -jump_speed
+        
+    keys = pygame.key.get_pressed() # 获取所有按键的状态
+    if keys[pygame.K_a]:            # 如果按住 A
+        player_x -= player_speed
+    if keys[pygame.K_d]:            # 如果按住 D
+        player_x += player_speed
+
+    # 防止方块跑出屏幕边缘
+    if player_x < 0:
+        player_x = 0
+    if player_x > WIDTH - player_size:
+        player_x = WIDTH - player_size
 
     if jump:
         player_y += y_speed
@@ -44,5 +57,7 @@ while running:
     pygame.draw.line(screen, WHITE, (0, 350), (WIDTH, 350), 10)
     pygame.draw.rect(screen, BLUE, (player_x, player_y, player_size, player_size))
     pygame.display.flip()
+
+    pygame.time.Clock().tick(60)
 
 pygame.quit()
