@@ -14,6 +14,7 @@ BLUE = (0, 100, 255)
 player_x = 300
 player_y = 310
 player_size = 40
+scroll = 0
 player_speed = 5
 
 # 跳跃变量
@@ -33,11 +34,11 @@ while running:
                 jump = True
                 y_speed = -jump_speed
         
-    keys = pygame.key.get_pressed() # 获取所有按键的状态
-    if keys[pygame.K_a]:            # 如果按住 A
-        player_x -= player_speed
-    if keys[pygame.K_d]:            # 如果按住 D
-        player_x += player_speed
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_d]:
+        scroll += player_speed  # 镜头向右滚
+    if keys[pygame.K_a]:
+        scroll -= player_speed  # 镜头向左滚
 
     # 防止方块跑出屏幕边缘
     if player_x < 0:
@@ -55,6 +56,10 @@ while running:
 
     screen.fill(BLACK)
     pygame.draw.line(screen, WHITE, (0, 350), (WIDTH, 350), 10)
+    for i in range(-100, WIDTH + 100, 100): 
+        mark_x = (i - scroll) % WIDTH
+        pygame.draw.line(screen, WHITE, (mark_x, 350), (mark_x, 360), 2)
+
     pygame.draw.rect(screen, BLUE, (player_x, player_y, player_size, player_size))
     pygame.display.flip()
 
