@@ -1,11 +1,13 @@
 import pygame
+from os.path import join
+
 pygame.init()
 
 WIDTH, HEIGHT = 1280, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Shooter")
 
-player_surf = pygame.image.load("Game-in-Python/image/player.png")
+player_surf = pygame.image.load(join("Game-in-Python", "images", "player_ship.png"))
 
 running = True
 while running:
