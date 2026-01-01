@@ -44,25 +44,46 @@ pygame.display.set_caption("Space Shooter")
 
 player_surf = pygame.image.load(join("Game-in-Python", "images", "player_ship.png")).convert_alpha()
 player_rect = player_surf.get_frect(center = (WIDTH / 2, HEIGHT - 100))
+player_direction = pygame.math.Vector2(0, 0)
+player_speed = 100 
 
 enemy_surf = pygame.image.load(join("Game-in-Python", "images", "enemy_ship.png")).convert_alpha()
 enemy_rect = enemy_surf.get_frect(center = (WIDTH / 2, 100))
 
 running = True
 while running:
-    dt = clock.tick(60) / 1000  # 以秒为单位的增量时间
+    
+    dt = clock.tick(60) / 1000  
+    print(f"FPS: {clock.get_fps():.2f}")
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_a:
+                player_direction.x = -1
+            if event.key == pygame.K_d:
+                player_direction.x = 1
+            if event.key == pygame.K_w:
+                player_direction.y = -1
+            if event.key == pygame.K_s:
+                player_direction.y = 1
+
+    player_rect.clamp_ip(screen.get_rect())
 
     screen.fill((5, 5, 15))
     update_and_draw_stars(screen, stars_far, (100, 100, 120), dt) # 灰色暗星
     update_and_draw_stars(screen, stars_mid, (180, 180, 200), dt) # 银色中星
     update_and_draw_stars(screen, stars_near, (255, 255, 255), dt) # 白色亮星
 
+    player_rect.center += player_direction * player_speed * dt
     screen.blit(enemy_surf, enemy_rect)
     screen.blit(player_surf, player_rect)
+    
+
+    
+    
     pygame.display.update()
 
 pygame.quit()
