@@ -5,6 +5,19 @@ import random
 pygame.init()
 clock = pygame.time.Clock()
 
+class Laser(pygame.sprite.Sprite):
+    def __init__(self, surf, pos, groups):
+        super().__init__(groups)
+        self.image = surf
+        # midbottom 设为 pos，子弹就会从飞机顶部射出
+        self.rect = self.image.get_frect(midbottom = pos)
+        self.speed = 500
+
+    def update(self, dt):
+        self.rect.y -= self.speed * dt
+        if self.rect.bottom < 0:
+            self.kill() # 飞出屏幕自动销毁
+
 # 1. 初始化星星数据
 # 每个元素包含：[frect对象, 速度]
 stars_far = []   # 远景：小、暗、慢
@@ -50,6 +63,10 @@ player_speed = 100
 enemy_surf = pygame.image.load(join("Game-in-Python", "images", "enemy_ship.png")).convert_alpha()
 enemy_rect = enemy_surf.get_frect(center = (WIDTH / 2, 100))
 
+laser_surf = pygame.Surface((4, 20)) 
+laser_surf.fill('red') # 填充为红色
+laser_group = pygame.sprite.Group()
+
 running = True
 while running:
     
@@ -69,6 +86,11 @@ while running:
                 player_direction.y = -1
             if event.key == pygame.K_s:
                 player_direction.y = 1
+            if event.key == pygame.K_SPACE:
+                # 左翼子弹 (向左偏移 20 像素)
+                Laser(laser_surf, player_rect.midtop + pygame.Vector2(-20, 0), laser_group)
+                # 右翼子弹 (向右偏移 20 像素)
+                Laser(laser_surf, player_rect.midtop + pygame.Vector2(20, 0), laser_group)
 
     player_rect.clamp_ip(screen.get_rect())
 
@@ -80,10 +102,13 @@ while running:
     player_rect.center += player_direction * player_speed * dt
     screen.blit(enemy_surf, enemy_rect)
     screen.blit(player_surf, player_rect)
-    
 
-    
-    
+    laser_group.update(dt)
+    laser_group.draw(screen)
+    player_rect.center += player_direction * player_speed * dt
+    screen.blit(enemy_surf, enemy_rect)
+    screen.blit(player_surf, player_rect)
+
     pygame.display.update()
 
 pygame.quit()
