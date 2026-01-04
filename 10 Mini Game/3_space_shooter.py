@@ -5,6 +5,18 @@ import random
 pygame.init()
 clock = pygame.time.Clock()
 
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, surf, pos, groups):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_frect(center = pos)
+        self.speed = random.randint(200, 500) # 随机速度
+
+    def update(self, dt):
+        self.rect.y += self.speed * dt
+        if self.rect.top > 720: # 飞出底部销毁
+            self.kill()
+
 class Laser(pygame.sprite.Sprite):
     def __init__(self, surf, pos, groups):
         super().__init__(groups)
@@ -67,6 +79,13 @@ laser_surf = pygame.Surface((4, 20))
 laser_surf.fill('red') # 填充为红色
 laser_group = pygame.sprite.Group()
 
+# 定义一个每隔一秒触发一次的事件
+ENEMY_EVENT = pygame.event.custom_type()
+pygame.time.set_timer(ENEMY_EVENT, 1000) # 1000毫秒 = 1秒
+
+# 创建敌机精灵组
+enemy_group = pygame.sprite.Group()
+
 running = True
 while running:
     
@@ -91,6 +110,9 @@ while running:
                 Laser(laser_surf, player_rect.midtop + pygame.Vector2(-20, 0), laser_group)
                 # 右翼子弹 (向右偏移 20 像素)
                 Laser(laser_surf, player_rect.midtop + pygame.Vector2(20, 0), laser_group)
+        if event.type == ENEMY_EVENT:
+            x_pos = random.randint(50, 1230) # 随机横坐标
+            Enemy(enemy_surf, (x_pos, -100), enemy_group) # 在屏幕上方生成
 
     player_rect.clamp_ip(screen.get_rect())
 
@@ -99,15 +121,18 @@ while running:
     update_and_draw_stars(screen, stars_mid, (180, 180, 200), dt) # 银色中星
     update_and_draw_stars(screen, stars_near, (255, 255, 255), dt) # 白色亮星
 
-    player_rect.center += player_direction * player_speed * dt
-    screen.blit(enemy_surf, enemy_rect)
-    screen.blit(player_surf, player_rect)
 
     laser_group.update(dt)
     laser_group.draw(screen)
     player_rect.center += player_direction * player_speed * dt
-    screen.blit(enemy_surf, enemy_rect)
+    #screen.blit(enemy_surf, enemy_rect)
     screen.blit(player_surf, player_rect)
+
+    # 逻辑更新：调用组内所有敌机的 update() 方法
+    enemy_group.update(dt)
+    
+    # 画面绘制：一次性把组里所有的敌机画在 screen 上
+    enemy_group.draw(screen)
 
     pygame.display.update()
 
