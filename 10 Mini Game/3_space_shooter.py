@@ -67,12 +67,12 @@ WIDTH, HEIGHT = 1280, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Shooter")
 
-player_surf = pygame.image.load(join("Game-in-Python", "images", "player_ship.png")).convert_alpha()
+player_surf = pygame.image.load(join( "images", "player_ship.png")).convert_alpha()
 player_rect = player_surf.get_frect(center = (WIDTH / 2, HEIGHT - 100))
 player_direction = pygame.math.Vector2(0, 0)
-player_speed = 100 
+player_speed = 300 
 
-enemy_surf = pygame.image.load(join("Game-in-Python", "images", "enemy_ship.png")).convert_alpha()
+enemy_surf = pygame.image.load(join("images", "enemy_ship.png")).convert_alpha()
 enemy_rect = enemy_surf.get_frect(center = (WIDTH / 2, 100))
 
 laser_surf = pygame.Surface((4, 20)) 
@@ -130,6 +130,9 @@ while running:
 
     # 逻辑更新：调用组内所有敌机的 update() 方法
     enemy_group.update(dt)
+
+    # 【新增】击毁逻辑：子弹碰撞敌机，双双消失
+    pygame.sprite.groupcollide(laser_group, enemy_group, True, True)
     
     # 画面绘制：一次性把组里所有的敌机画在 screen 上
     enemy_group.draw(screen)
