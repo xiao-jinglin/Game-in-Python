@@ -5,6 +5,29 @@ import random
 pygame.init()
 clock = pygame.time.Clock()
 
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, pos, groups):
+        super().__init__(groups)
+        # 创建一个透明的表面，大小根据你的爆炸规模定
+        self.image = pygame.Surface((100, 100), pygame.SRCALPHA)
+        self.rect = self.image.get_frect(center = pos)
+        
+        # 爆炸参数
+        self.timer = 0
+        self.duration = 0.5 # 持续0.5秒
+        
+    def update(self, dt):
+        self.timer += dt
+        if self.timer >= self.duration:
+            self.kill() # 时间到，销毁爆炸对象
+        else:
+            # 每一帧都重新画圆圈，圆圈随时间变小
+            self.image.fill((0,0,0,0)) # 清空上一帧
+            # 绘制一个逐渐缩小的橘黄色圆圈
+            radius = int(50 * (1 - self.timer / self.duration))
+            if radius > 0:
+                pygame.draw.circle(self.image, (255, 165, 0), (50, 50), radius)
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, surf, pos, groups):
         super().__init__(groups)
@@ -78,6 +101,7 @@ enemy_rect = enemy_surf.get_frect(center = (WIDTH / 2, 100))
 laser_surf = pygame.Surface((4, 20)) 
 laser_surf.fill('red') # 填充为红色
 laser_group = pygame.sprite.Group()
+explosion_group = pygame.sprite.Group()
 
 # 定义一个每隔一秒触发一次的事件
 ENEMY_EVENT = pygame.event.custom_type()
@@ -131,11 +155,20 @@ while running:
     # 逻辑更新：调用组内所有敌机的 update() 方法
     enemy_group.update(dt)
 
-    # 【新增】击毁逻辑：子弹碰撞敌机，双双消失
-    pygame.sprite.groupcollide(laser_group, enemy_group, True, True)
+    explosion_group.update(dt) 
+
+    # 修改碰撞检测：记录哪些敌机被撞到了
+    collisions = pygame.sprite.groupcollide(laser_group, enemy_group, True, True)
+    
+    # 遍历碰撞结果，在每个被撞敌机的位置产生爆炸
+    for laser, enemies in collisions.items():
+        for enemy in enemies:
+            # 在敌机的中心位置实例化爆炸效果
+            Explosion(enemy.rect.center, explosion_group)
     
     # 画面绘制：一次性把组里所有的敌机画在 screen 上
     enemy_group.draw(screen)
+    explosion_group.draw(screen)
 
     pygame.display.update()
 
