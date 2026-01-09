@@ -1,4 +1,5 @@
 import pygame
+import sys
 pygame.init()
 
 # 屏幕尺寸常量
@@ -7,11 +8,45 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Breakout")
 clock = pygame.time.Clock()
 
-runing = True
-while runing:
+# 挡板 (Paddle)
+paddle_width, paddle_height = 120, 15
+# 使用 FRect 处理浮点数坐标，移动更平滑 (Smooth movement)
+paddle_rect = pygame.FRect(WIDTH // 2 - paddle_width // 2, HEIGHT - 40, paddle_width, paddle_height)
+paddle_speed = 600
+
+# 小球 (Ball)
+ball_radius = 10
+# 创建一个小球的矩形范围，初始放在屏幕中央
+ball_rect = pygame.FRect(WIDTH // 2, HEIGHT // 2, ball_radius * 2, ball_radius * 2)
+# ball_speed 是一个向量 (Vector2)，包含 x 和 y 方向的速度
+# -300 表示初始向上飞
+ball_speed = pygame.Vector2(300, -300)
+
+running = True
+while running:
+
+    dt = clock.tick(60) / 1000  # 帧时间 (Frame time) 以秒为单位
+
+    # 事件处理 (Event Handling)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            runing = False  
+            running = False
+    
+    # A. 挡板移动控制
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and paddle_rect.left > 0:
+        paddle_rect.x -= paddle_speed * dt
+    if keys[pygame.K_RIGHT] and paddle_rect.right < WIDTH:
+        paddle_rect.x += paddle_speed * dt
 
+    # B. 小球移动
+    ball_rect.center += ball_speed * dt
+
+    
+    
     screen.fill((20, 20, 30))
+    pygame.draw.rect(screen, 'cyan', paddle_rect, border_radius=5)
+    pygame.draw.circle(screen, 'orange', ball_rect.center, ball_radius)
+    pygame.display.update()
 pygame.quit()
+sys.exit()
