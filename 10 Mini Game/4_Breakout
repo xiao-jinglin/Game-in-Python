@@ -42,6 +42,19 @@ while running:
     # B. 小球移动
     ball_rect.center += ball_speed * dt
 
+    # 墙壁碰撞检测 (Wall Collision)
+    # 撞到左侧或右侧
+    if ball_rect.left <= 0 or ball_rect.right >= WIDTH:
+        ball_speed.x *= -1  # 水平速度反转
+        
+    # 撞到顶部
+    if ball_rect.top <= 0:
+        ball_speed.y *= -1  # 垂直速度反转
+
+    # 挡板碰撞检测 (Paddle Collision)
+    if ball_rect.colliderect(paddle_rect):
+        ball_speed.y *= -1  # 撞到挡板弹回去
+
     
     
     screen.fill((20, 20, 30))
