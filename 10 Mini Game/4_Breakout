@@ -22,6 +22,24 @@ ball_rect = pygame.FRect(WIDTH // 2, HEIGHT // 2, ball_radius * 2, ball_radius *
 # -300 表示初始向上飞
 ball_speed = pygame.Vector2(300, -300)
 
+# 砖块设置
+brick_list = []
+rows = 5      # 5行
+cols = 10     # 每行10个
+gap = 4       # 砖块之间的缝隙
+
+# 自动计算每块砖的宽度，让它们平铺满 800 像素的屏幕
+brick_width = (WIDTH - (cols + 1) * gap) // cols
+brick_height = 20
+
+# 嵌套循环生成砖块坐标
+for row in range(rows):
+    for col in range(cols):
+        x = col * (brick_width + gap) + gap
+        y = row * (brick_height + gap) + 50
+        rect = pygame.FRect(x, y, brick_width, brick_height)
+        brick_list.append(rect)
+
 running = True
 while running:
 
@@ -54,12 +72,12 @@ while running:
     # 挡板碰撞检测 (Paddle Collision)
     if ball_rect.colliderect(paddle_rect):
         ball_speed.y *= -1  # 撞到挡板弹回去
-
-    
-    
+   
     screen.fill((20, 20, 30))
     pygame.draw.rect(screen, 'cyan', paddle_rect, border_radius=5)
     pygame.draw.circle(screen, 'orange', ball_rect.center, ball_radius)
+    for brick in brick_list:
+        pygame.draw.rect(screen, (200, 50, 80), brick, border_radius=4)
     pygame.display.update()
 pygame.quit()
 sys.exit()
